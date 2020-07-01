@@ -1,5 +1,6 @@
 package de.twometer.raspilapse;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -20,14 +21,17 @@ public class TimelapseRecorder {
     }
 
     public void begin() throws InterruptedException, IOException {
+        running = true;
+
         Logger.info("Initializing camera...");
         Camera camera = new Camera();
         camera.start();
 
         String folderPath = buildFolderPath();
-        int imageNumber = 1;
+        ensureExists(folderPath);
 
         Logger.info("Taking pictures...");
+        int imageNumber = 1;
         while (running) {
             byte[] imageData = camera.captureImage();
             String imagePath = buildImagePath(folderPath, imageNumber);
@@ -35,7 +39,7 @@ public class TimelapseRecorder {
             FileOutputStream outputStream = new FileOutputStream(imagePath);
             outputStream.write(imageData);
             outputStream.close();
-            
+
             imageNumber++;
             Thread.sleep(timeout);
         }
@@ -53,6 +57,13 @@ public class TimelapseRecorder {
         if (!destinationFolder.endsWith("/"))
             destinationFolder += "/";
         return destinationFolder + timelapseName;
+    }
+
+    private void ensureExists(String folder) throws IOException {
+        File file = new File(folder);
+        if (!file.exists())
+            if (!file.mkdir())
+                throw new IOException("Failed to create directory!");
     }
 
 }
