@@ -15,6 +15,7 @@ public class RaspiLapseMain {
             return;
         }
 
+        System.out.println("Reading config...");
         Properties config = new Properties();
         config.load(new FileReader(configFile.getAbsolutePath()));
 
@@ -22,9 +23,11 @@ public class RaspiLapseMain {
         String dst = config.getProperty("destination");
         String slash = dst.endsWith("/") ? "" : "/";
 
+        System.out.println("Initializing camera...");
         Camera camera = new Camera();
         camera.start();
 
+        System.out.println("Timelapse active");
         int imageNum = 0;
         while (true) {
             byte[] image = camera.captureImage();
